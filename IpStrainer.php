@@ -45,19 +45,19 @@ class IpStrainer {
     public function verifyIP(){
         
         $occurances = array_count_values($this->strainer['ips']);
-        if((array_key_exists($_SERVER['REMOTE_ADDR'], $occurances)) && 
-                ($occurances[$_SERVER['REMOTE_ADDR']] > $this->requests) &&
-                (!$this->in_array_r($_SERVER['REMOTE_ADDR'], $this->banned))){
+        if((array_key_exists($this->ip, $occurances)) && 
+                ($occurances[$this->ip] > $this->requests) &&
+                (!$this->in_array_r($this->ip, $this->banned))){
             
             $this->banned[] = array(
                 'ban_time'  => time(),
-                'address'   => $_SERVER['REMOTE_ADDR']
+                'address'   => $this->ip
             );
             
         } 
-
+        
         foreach($this->banned as $key => $ip){
-            if(($ip['address'] == $_SERVER['REMOTE_ADDR'])){
+            if(($ip['address'] == $this->ip)){
                 if(time() < ($ip['ban_time'] + $this->bantime)){
                     $this->save();
                     return false;
@@ -67,7 +67,7 @@ class IpStrainer {
             }
         }
         
-        $this->strainer['ips'][] = $_SERVER['REMOTE_ADDR'];
+        $this->strainer['ips'][] = $this->ip;
         
         $this->save();
         return true;
